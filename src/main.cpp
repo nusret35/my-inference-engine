@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include "types.hpp"
+#include "reader.hpp"
 
 void read_gguf_metadata_counts(std::ifstream &file, uint32_t &version, uint32_t &tensor_count, uint64_t &metadata_count)
 {
@@ -20,17 +22,13 @@ void read_gguf_metadata_counts(std::ifstream &file, uint32_t &version, uint32_t 
     file.read(reinterpret_cast<char *>(&metadata_count), 8);
 }
 
-void read_value(uint32_t type)
-{
-    // read value according to its type
-}
-
-void read_gguf_metadata(std::ifstream &file) {}
-
 int main()
 {
 
     std::ifstream file("../Qwen3-0.6B-Q8_0.gguf", std::ios::binary);
+    gguf_context ctx{
+        .file_stream = &file,
+    };
 
     if (!file.is_open())
     {
@@ -59,6 +57,8 @@ int main()
     std::cout << "Version: " << version << '\n';
     std::cout << "Tensors: " << tensor_count << '\n';
     std::cout << "Metadata: " << metadata_count << '\n';
+
+    read_kv_pairs(ctx, metadata_count);
 
     return 0;
 }
