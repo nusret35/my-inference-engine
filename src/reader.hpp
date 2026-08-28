@@ -4,6 +4,10 @@
 #include <fstream>
 #include <iostream>
 #include "types.hpp"
+#include <variant>
+#include <cstdint>
+
+using GgufValue = std::variant<int8_t, int16_t, uint16_t, int32_t, uint32_t, float, int64_t, uint64_t, double>;
 
 void read_kv_pairs(gguf_context &ctx, uint32_t metadata_count)
 {
@@ -25,6 +29,11 @@ void read_kv_pairs(gguf_context &ctx, uint32_t metadata_count)
         // TODO: Reading value. We need to make a function
         // that has a switch statement which handles reading
         // each value differently, according to its type
+        ggml_type_traits type_trait = get_gguf_type_traits(val_type);
+        std::vector<char> value_buffer(type_trait.type_size);
+        ctx.file_stream->read(value_buffer.data(), type_trait.type_size);
+
+        std::cout << "Key: " << key_name << " Value: " << value_buffer << std::endl;
     }
 }
 
